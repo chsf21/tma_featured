@@ -10,8 +10,7 @@ import getopt, sys
 output_folder = "~/Music/featured_modules"
 # The feed variable should generally be left as is. 
 # It may be changed to parse from a downloaded copy of TMA's RSS feed.
-feed = "/home/charles/Downloads/rss.php"
-#feed = "https://modarchive.org/rss.php?request=featured"
+feed = "https://modarchive.org/rss.php?request=featured"
 
 ########################## SETUP ##############################
 
