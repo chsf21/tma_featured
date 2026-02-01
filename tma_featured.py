@@ -6,6 +6,7 @@ import feedparser
 import wget
 import getopt, sys
 
+# Try to import optional libraries needed for interactive mode.
 no_tui = False
 try:
     import urwid
@@ -17,7 +18,8 @@ except:
 output_folder = "~/Music/featured_modules"
 # The feed variable should generally be left as is. 
 # It may be changed to parse from a downloaded copy of TMA's RSS feed.
-feed = "https://modarchive.org/rss.php?request=featured"
+    #feed = "https://modarchive.org/rss.php?request=featured"
+feed = "~/Downloads/rss.php"
 
 ########################## Setup ##############################
 
@@ -121,3 +123,4 @@ if not interactive_mode:
             download_module(entry_objects_dict[key], output_folder, owned_modules)
 
 ########################## Urwid TUI ##############################
+

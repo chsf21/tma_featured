@@ -11,7 +11,8 @@ Up to 40 of the most recently featured modules can be downloaded, as that is the
 * Python 3
 * feedparser https://pypi.org/project/feedparser/
 * wget Python module https://pypi.org/project/wget/
-* systemd (Optional. It is possible to ignore this and still run the script on a Windows computer.)
+* urwid https://pypi.org/project/urwid/ (Optional. Only if you would like to use the TUI interactive mode.)
+* systemd (Optional. It is possible to ignore this and still run the script.)
 
 ## Setup
 The only thing for the user to configure is where modules should be downloaded to.
