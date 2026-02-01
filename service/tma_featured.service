@@ -1,0 +1,7 @@
+[Unit]
+Description=modarchive.org featured modules downloader
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/tma_featured.py

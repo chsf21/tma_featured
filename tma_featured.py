@@ -27,10 +27,12 @@ shortopts = "hc:"
 longopts = ["help", "count="]
 options_list, arguments_list = getopt.getopt(args, shortopts, longopts)
 
-count = 0
+count = 40
+count_option = False
 for option, value in options_list:
     if option in ("-c", "--count"):
         count = int(value)
+        count_option = True
         if count > 40:
             sys.exit("Count must be less than or equal to 40")
     elif option in ("-h", "--help"):
@@ -70,12 +72,16 @@ def download_module(entry_object, output_folder, owned_modules):
 
 def find_recent_module(entry_objects_dict, output_folder, owned_modules):
     """Search the root level of the output directory for a module that was recently featured. If it is found, return the dictionary key that corresponds with that module"""
-    for x in range(len(objects_dict.keys())):
-        obj = objects_dict[str(x + 1)]
+    for x in range(len(entry_objects_dict.keys())):
+        obj = entry_objects_dict[str(x + 1)]
         if obj.filename in owned_modules:
             print(f"Found recently downloaded module {obj.filename} in {output_folder}")
-            print(f"Modules that were featured after {obj.filename} will be downloaded")
-            return str(x + 1)
+            if x == 0:
+                print(f"{obj.filename} is the most recently featured module. Nothing to download.")
+                sys.exit(0)
+            else:
+                print(f"Modules that were featured after {obj.filename} will be downloaded")
+                return str(x + 1)
         else:
             continue
 
@@ -84,10 +90,10 @@ def find_recent_module(entry_objects_dict, output_folder, owned_modules):
 entry_objects_dict = create_entry_objects(parsed.entries, count)
 
 # Only use find_recent_module if the user did not specify a count
-if count == 0:
-    recent_key = find_recent_module(entry_objects_dict, output_folder, owned_modules)
-else:
+if count_option:
     recent_key = ""
+else:
+    recent_key = find_recent_module(entry_objects_dict, output_folder, owned_modules)
 
 for key in entry_objects_dict.keys():
     if key == recent_key:
