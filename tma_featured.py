@@ -5,13 +5,14 @@ import re
 import feedparser
 import wget
 import getopt, sys
-
 # Try to import optional libraries needed for interactive mode.
 no_tui = False
 try:
     import urwid
 except:
     no_tui = True
+
+########################## User configuration ##############################
 
 # Change these variables to your liking
 # output_folder cannot use the tilde character ~ if the systemd service will be used
@@ -29,20 +30,37 @@ feed_from_file = False
 ########################## Setup ##############################
 
 args = sys.argv[1:]
-shortopts = "hc:ia"
-longopts = ["help", "count=", "interactive", "all-recent"]
+shortopts = "hc:iao:"
+longopts = ["help", "count=", "interactive", "all-recent", "output"]
 options_list, arguments_list = getopt.getopt(args, shortopts, longopts)
 
 count = 40
 count_option = False
 interactive_mode = False
 all_mode = False
+custom_output = False
 for option, value in options_list:
+    if option in ("-h", "--help"):
+        print("DEFAULT:") 
+        print("Will search the root level of the output directory for a module that was recently featured")
+        print("If found, all modules that were featured more recently than the found module will be downloaded")
+        print("If not found, the 40 most recently featured modules will be downloaded")
+        print("OPTIONS:")
+        print("-a, --all-recent\tDownload from the archive of all recently archived modules including modules that were not featured")
+        print("-c [x], --count [x]\tDownload the last [x] modules that were featured. Must be less than or equal to 40.")
+        print("                   \tIf -a is used with this option, must be less than or equal to 100")
+        print("-i, --interactive\tInteractive TUI mode. Browse the recently featured modules and choose which to download or stream")
+        print("-o, --output\tSpecify an output directory. (Without this, the output directory specified at the top of tma_featured.py is used)")
+        sys.exit(0)
     if option in ("-a", "--all-recent"):
         all_mode = True
         count = 15
         feed = "https://modarchive.org/rss.php?request=uploads"
-        output_folder = all_mode_folder
+        if not custom_output:
+            output_folder = all_mode_folder
+    if option in ("-o", "--output"):
+        output_folder = value
+        custom_output = True
     if option in ("-c", "--count"):
         count = int(value)
         count_option = True
@@ -55,15 +73,6 @@ for option, value in options_list:
             sys.exit("Cannot start interactive mode because the urwid library was not found\nhttps://pypi.org/project/urwid/")
         else:
             interactive_mode = True
-    if option in ("-h", "--help"):
-        print("DEFAULT: Will search the root level of the output directory for a module that was recently featured")
-        print("         If found, all modules that were featured more recently than the found module will be downloaded")
-        print("         If not found, the 40 most recently featured modules will be downloaded")
-        print("OPTIONS:")
-        print("         -a, --all-recent\tDownload from the archive of all recently archived modules including modules that were not featured")
-        print("         -c [x], --count [x]\tDownload the last [x] modules that were featured. Must be less than or equal to 40.")
-        print("                              If -a is used, must be less than or equal to 100")
-        print("         -i, --interactive\tInteractive TUI mode. Browse the recently featured modules and choose which to download or stream")
 
 output_folder = os.path.expanduser(output_folder)
 output_folder = os.path.abspath(output_folder)

@@ -30,7 +30,9 @@ Remember: If you choose to copy tma_featured.py to /usr/local/bin, then any chan
 ## Behavior
 By default, the root of the output directory will be scanned for any file that has an identical filename to one of the last 40 recently featured modules. If such a file is found, the script will download all modules that were featured after that file was featured. For example, if dream.it was featured two weeks ago, and your output directory contains a "dream.it" at its root level, the script will download all featured modules from the last two weeks.
 
-In order to avoid any unexpected behavior (e.g. an old module having the same filename as a newly featured module), it is recommended to set the output directory to something unqiue where only featured modules will be stored.
+This behavior also applies when the script is run with the [-a, --all-recent option.](#command-line-options)
+
+In order to avoid any unexpected behavior (e.g. an old module having the same filename as a newly featured module), it is recommended to set the output directory to something unqiue where only recent modules will be stored.
 
 To circumvent this default behavior and manually specify how many modules to download, use the [command line option -c](#command-line-options)
 
