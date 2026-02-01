@@ -21,6 +21,8 @@ At the top of the script, tma_featured.py, change the value of the variable outp
 
 There is also a variable recent_mode_folder. This is where modules will be downloaded to when using the [-a or --all-recent command line option](#command-line-options). If you would like it to be the same output_folder, simply set it equal to output_folder. Like output_folder, this must not contain the tilde ~ character if the systemd service will be used.
 
+Note: To quickly specify a custom output directory for the current run of the script, use the [command line option -o](#command-line-options)
+
 Remember: If you choose to copy tma_featured.py to /usr/local/bin, then any changes made to the output_folder or all_mode_folder variables must be done on that copy. If you would prefer to edit some copy in your home directory while also having the executable in /usr/local/bin, use symlinks:
 
     sudo ln -s /**absolute**/path/to/tma_featured.py /usr/local/bin
@@ -42,6 +44,7 @@ To circumvent this default behavior and manually specify how many modules to dow
 * -c [x], --count=[x]: Download the X most recently featured modules. Must be an integer less than or equal to 40. If the -a option is used, the count must be less than or equal to 100.
 * -i, --interactive: Enter an interactive TUI mode where you can browse through modules, select an individual module, and choose to play it (stream) or download it.
 * -a, --all-recent: Download from all of the most recently archived modules, including modules that were not featured.
+* -o [path/to/output], --output=[[path/to/output]: Specify a custom output directory. If it does not exist already, it will be made on the fly.
 
 ## systemd service
 Included are two files relevant to systemd. They can be used to have the script run automatically upon your computer's startup and then to run periodically while the computer is running.
