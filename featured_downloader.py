@@ -12,7 +12,7 @@ output_folder = "~/Music/featured_modules"
 # It may be changed to parse from a downloaded copy of TMA's RSS feed.
 feed = "https://modarchive.org/rss.php?request=featured"
 
-########################## SETUP ##############################
+########################## Setup ##############################
 
 output_folder = os.path.expanduser(output_folder)
 if not os.path.isdir(output_folder):
@@ -36,6 +36,7 @@ for option, value in options_list:
     elif option in ("-h", "--help"):
         print("DEFAULT: Will search the root level of the output directory for a module that was recently featured")
         print("         If found, all modules that were featured more recently than the found module will be downloaded")
+        print("         If not found, the 40 most recently featured modules will be downloaded")
         print("OPTIONS:")
         print("         -c [x], --count [x]\tDownload the last [x] modules that were featured. Must be less than or equal to 40")
 
