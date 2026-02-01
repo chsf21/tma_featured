@@ -19,11 +19,13 @@ The only thing for the user to configure is where modules should be downloaded t
 
 At the top of the script, tma_featured.py, change the value of the variable output_folder to the path of your choosing. If they directory that you specify here does not exist yet, it will be created automatically by the script. If the [systemd service](#systemd-service) will be used, then the path of output_folder cannot contain the tilde ~ character.
 
-Remember: If you choose to copy tma_featured.py to /usr/local/bin, then any changes made to the output_folder variable must be done on that copy. If you would prefer to edit some copy in your home directory while also having the executable in /usr/local/bin, use symlinks:
+There is also a variable recent_mode_folder. This is where modules will be downloaded to when using the [-a or --all-recent command line option](#command-line-options). If you would like it to be the same output_folder, simply set it equal to output_folder. Like output_folder, this must not contain the tilde ~ character if the systemd service will be used.
+
+Remember: If you choose to copy tma_featured.py to /usr/local/bin, then any changes made to the output_folder or all_mode_folder variables must be done on that copy. If you would prefer to edit some copy in your home directory while also having the executable in /usr/local/bin, use symlinks:
 
     sudo ln -s /**absolute**/path/to/tma_featured.py /usr/local/bin
 
-(There is also a variable with the name "feed" that specifies the location of the RSS feed containing the latest featured modules. It is possible to change this to the path of a locally downloaded copy of the featured modules RSS feed. This may be useful for testing the script during development, as it will eliminate unnecessary internet traffic.)
+(There is also a variable with the name "feed" that specifies the location of the RSS feed containing the latest featured modules. It is possible to change this to the path of a locally downloaded copy of the featured modules RSS feed. This may be useful for testing the script during development, as it will eliminate unnecessary internet traffic. If this is done, also change feed_from_file to True.)
 
 ## Behavior
 By default, the root of the output directory will be scanned for any file that has an identical filename to one of the last 40 recently featured modules. If such a file is found, the script will download all modules that were featured after that file was featured. For example, if dream.it was featured two weeks ago, and your output directory contains a "dream.it" at its root level, the script will download all featured modules from the last two weeks.
@@ -35,7 +37,9 @@ To circumvent this default behavior and manually specify how many modules to dow
 ## Command line options
 
 * -h: Display help
-* -c [x], --count=[x]: Download the X most recently featured modules. Must be an integer less than or equal to 40.
+* -c [x], --count=[x]: Download the X most recently featured modules. Must be an integer less than or equal to 40. If the -a option is used, the count must be less than or equal to 100.
+* -i, --interactive: Enter an interactive TUI mode where you can browse through modules, select an individual module, and choose to play it (stream) or download it.
+* -a, --all-recent: Download from all of the most recently archived modules, including modules that were not featured.
 
 ## systemd service
 Included are two files relevant to systemd. They can be used to have the script run automatically upon your computer's startup and then to run periodically while the computer is running.
