@@ -13,7 +13,7 @@ Up to 40 of the most recently featured modules can be downloaded, as that is the
 * systemd (Optional. It is possible to ignore this and still run the script on a Windows computer.)
 
 ##Setup
-The only thing for you, the user, to configure is where you would like modules to be downloaded to.
+The only thing for the user to configure is where modules should be downloaded to.
 
 At the top of the script, tma_featured.py, change the value of the variable output_folder to the path of your choosing. If they directory that you specify here does not exist yet, it will be created automatically by the script.
 
@@ -22,6 +22,13 @@ Remember: If you choose to copy tma_featured.py to /usr/local/bin, then any chan
     sudo ln -s /**absolute**/path/to/tma_featured.py /usr/local/bin
 
 (There is also a variable with the name "feed" that specifies the location of the RSS feed containing the latest featured modules. It is possible to change this to the path of a locally downloaded copy of the featured modules RSS feed. This may be useful for testing the script during development, as it will eliminate unnecessary internet traffic.)
+
+##Behavior
+By default, the root of the output directory will be scanned for any file that has an identical filename to one of the last 40 recently featured modules. If such a file is found, the script will download all modules that were featured after that file was featured. For example, if dream.it was featured two weeks ago, and your output directory contains a "dream.it" at its root level, the script will download all featured modules from the last two weeks.
+
+In order to avoid any unexpected behavior (e.g. an old module having the same filename as a newly featured module), it is recommended to set the output directory to something unqiue where only featured modules will be stored.
+
+To circumvent this default behavior and manually specify how many modules to download, use the [command line option -c](#command-line-options)
 
 ##Command line options
 
