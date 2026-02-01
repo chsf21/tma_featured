@@ -7,6 +7,7 @@ import wget
 import getopt, sys
 
 # Change these variables to your liking
+# output_folder must be an absolute path if the systemd service will be used
 output_folder = "~/Music/featured_modules"
 # The feed variable should generally be left as is. 
 # It may be changed to parse from a downloaded copy of TMA's RSS feed.
@@ -15,6 +16,7 @@ feed = "https://modarchive.org/rss.php?request=featured"
 ########################## Setup ##############################
 
 output_folder = os.path.expanduser(output_folder)
+output_folder = os.path.abspath(output_folder)
 if not os.path.isdir(output_folder):
     os.mkdir(output_folder)
 
