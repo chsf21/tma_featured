@@ -1,4 +1,5 @@
-# tma_featured - modarchive.org featured modules downloader
+# tma_featured
+## modarchive.org featured modules downloader
 
 Download the latest featured modules from modarchive.org.
 
