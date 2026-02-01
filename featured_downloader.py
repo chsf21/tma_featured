@@ -31,6 +31,8 @@ count = 0
 for option, value in options_list:
     if option in ("-c", "--count"):
         count = int(value)
+        if count > 40:
+            sys.exit("Count must be less than or equal to 40")
     elif option in ("-h", "--help"):
         print("DEFAULT: Will search the root level of the output directory for a module that was recently featured")
         print("         If found, all modules that were featured more recently than the found module will be downloaded")
@@ -52,10 +54,10 @@ class FeaturedModule:
 
 def create_entry_objects(parsed_entries, count):
     """Turn parsed feed entries into objects, then insert them into a dictionary. Dictionary keys are sequential integers, starting with 1"""
-    objects_dict = dict()
+    entry_objects_dict = dict()
     for x in range(count):
-        objects_dict[str(x + 1)] = FeaturedModule(parsed.entries[x])
-    return objects_dict
+        entry_objects_dict[str(x + 1)] = FeaturedModule(parsed.entries[x])
+    return entry_objects_dict
 
 def download_module(entry_object, output_folder, owned_modules):
     """Download the module using the URL in a FeaturedModule object's .download field. If the module already exists in the output directory, skip downloading it."""
@@ -65,7 +67,7 @@ def download_module(entry_object, output_folder, owned_modules):
         print(f"\nDownloading {entry_object.filename}")
         wget.download(entry_object.download, output_folder)
 
-def find_recent_module(objects_dict, output_folder, owned_modules):
+def find_recent_module(entry_objects_dict, output_folder, owned_modules):
     """Search the root level of the output directory for a module that was recently featured. If it is found, return the dictionary key that corresponds with that module"""
     for x in range(len(objects_dict.keys())):
         obj = objects_dict[str(x + 1)]
@@ -78,16 +80,16 @@ def find_recent_module(objects_dict, output_folder, owned_modules):
 
 ########################## Main ##############################
 
-mydictionary = create_entry_objects(parsed.entries, count)
+entry_objects_dict = create_entry_objects(parsed.entries, count)
 
 # Only use find_recent_module if the user did not specify a count
 if count == 0:
-    recent_key = find_recent_module(mydictionary, output_folder, owned_modules)
+    recent_key = find_recent_module(entry_objects_dict, output_folder, owned_modules)
 else:
     recent_key = ""
 
-for key in mydictionary.keys():
+for key in entry_objects_dict.keys():
     if key == recent_key:
         break 
     else:
-        download_module(mydictionary[key], output_folder, owned_modules)
+        download_module(entry_objects_dict[key], output_folder, owned_modules)
