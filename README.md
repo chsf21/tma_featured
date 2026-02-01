@@ -16,7 +16,7 @@ Up to 40 of the most recently featured modules can be downloaded, as that is the
 ## Setup
 The only thing for the user to configure is where modules should be downloaded to.
 
-At the top of the script, tma_featured.py, change the value of the variable output_folder to the path of your choosing. If they directory that you specify here does not exist yet, it will be created automatically by the script. If the [systemd service](#systemd-service) will be used, then output_folder must be an absolute path. Otherwise, it can be a relative path or contain the ~ character.
+At the top of the script, tma_featured.py, change the value of the variable output_folder to the path of your choosing. If they directory that you specify here does not exist yet, it will be created automatically by the script. If the [systemd service](#systemd-service) will be used, then the path of output_folder cannot contain the tilde ~ character.
 
 Remember: If you choose to copy tma_featured.py to /usr/local/bin, then any changes made to the output_folder variable must be done on that copy. If you would prefer to edit some copy in your home directory while also having the executable in /usr/local/bin, use symlinks:
 
@@ -41,7 +41,7 @@ Included are two files relevant to systemd. They can be used to have the script 
 
 To enable this systemd service:
 
-* Ensure that the output_folder variable is set to an absolute path ([this is only required for those using the systemd service](#setup))
+* Ensure that the output_folder path does not use the tilde ~ character. ([This is only required for those using the systemd service](#setup))
 * Ensure sure that the Python script is executable:
 ```
 chmod +x tma_featured.py

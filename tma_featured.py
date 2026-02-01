@@ -7,7 +7,7 @@ import wget
 import getopt, sys
 
 # Change these variables to your liking
-# output_folder must be an absolute path if the systemd service will be used
+# output_folder cannot use the tilde character ~ if the systemd service will be used
 output_folder = "~/Music/featured_modules"
 # The feed variable should generally be left as is. 
 # It may be changed to parse from a downloaded copy of TMA's RSS feed.
