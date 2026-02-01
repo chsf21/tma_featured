@@ -6,6 +6,12 @@ import feedparser
 import wget
 import getopt, sys
 
+no_tui = False
+try:
+    import urwid
+except:
+    no_tui = True
+
 # Change these variables to your liking
 # output_folder cannot use the tilde character ~ if the systemd service will be used
 output_folder = "~/Music/featured_modules"
@@ -22,27 +28,37 @@ if not os.path.isdir(output_folder):
 
 owned_modules = os.listdir(output_folder)
 
+feed = os.path.expanduser(feed)
+feed = os.path.abspath(feed)
+
 parsed = feedparser.parse(feed)
 
 args = sys.argv[1:]
-shortopts = "hc:"
-longopts = ["help", "count="]
+shortopts = "hc:i"
+longopts = ["help", "count=", "interactive"]
 options_list, arguments_list = getopt.getopt(args, shortopts, longopts)
 
 count = 40
 count_option = False
+interactive_mode = True
 for option, value in options_list:
     if option in ("-c", "--count"):
         count = int(value)
         count_option = True
         if count > 40:
             sys.exit("Count must be less than or equal to 40")
+    elif option in ("-i", "--interactive"):
+        if no_tui:
+            sys.exit("Cannot start interactive mode because the Urwid library was not found\nhttps://pypi.org/project/urwid/")
+        else:
+            interactive_mode = True
     elif option in ("-h", "--help"):
         print("DEFAULT: Will search the root level of the output directory for a module that was recently featured")
         print("         If found, all modules that were featured more recently than the found module will be downloaded")
         print("         If not found, the 40 most recently featured modules will be downloaded")
         print("OPTIONS:")
         print("         -c [x], --count [x]\tDownload the last [x] modules that were featured. Must be less than or equal to 40")
+        print("         -i, --interactive\tInteractive TUI mode. Browse the recently featured modules and choose which to download or stream")
 
 ########################## Classes and methods ##############################
 
@@ -91,14 +107,17 @@ def find_recent_module(entry_objects_dict, output_folder, owned_modules):
 
 entry_objects_dict = create_entry_objects(parsed.entries, count)
 
-# Only use find_recent_module if the user did not specify a count
-if count_option:
-    recent_key = ""
-else:
-    recent_key = find_recent_module(entry_objects_dict, output_folder, owned_modules)
-
-for key in entry_objects_dict.keys():
-    if key == recent_key:
-        break 
+if not interactive_mode:
+    # Only use find_recent_module if the user did not specify a count
+    if count_option:
+        recent_key = ""
     else:
-        download_module(entry_objects_dict[key], output_folder, owned_modules)
+        recent_key = find_recent_module(entry_objects_dict, output_folder, owned_modules)
+
+    for key in entry_objects_dict.keys():
+        if key == recent_key:
+            break 
+        else:
+            download_module(entry_objects_dict[key], output_folder, owned_modules)
+
+########################## Urwid TUI ##############################
