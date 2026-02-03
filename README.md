@@ -1,11 +1,15 @@
 # tma_featured
 ## modarchive.org featured modules downloader
 
-Download the latest featured modules from modarchive.org.
+Keep up with and download the latest modules from modarchive.org.
 
-Makes use of the RSS feed for getting info about newly featured modules.  
+Optional systemd service for automatic downloads.
 
-Up to 40 of the most recently featured modules can be downloaded, as that is the length of the RSS feed.
+Optional interactive mode for browsing in a TUI.
+
+Makes use of RSS feeds for getting info about newly featured or newly archived modules.
+
+Up to 40 recently featured modules and up to 100 recently archived modules may be accessed through this script.
 
 ## Requires
 * Python 3
