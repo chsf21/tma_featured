@@ -225,6 +225,7 @@ if not no_tui and interactive_mode:
         stream_button = urwid.Button("Play in browser")
         urwid.connect_signal(stream_button, "click", stream_mod, choice)
         choices.append(urwid.AttrMap(stream_button, None, focus_map="reversed"))
+        choices.extend([urwid.Divider(), urwid.Text("ESC to go back")])
         submenu_window = menu(choice.filename, choices)
         loop.widget = urwid.Overlay(
                 urwid.LineBox(submenu_window),
@@ -241,7 +242,10 @@ if not no_tui and interactive_mode:
     def dl_mod(button, choice):
         """Download the selected module using download_module"""
         download_module(choice, output_folder, owned_modules)
-        loop.widget = menu(title_string, main_menu_choices(entry_objects_list))
+        # Render the main menu again, so that (Downloaded) is shown next to this module.
+        global main_menu
+        main_menu = menu(title_string, main_menu_choices(entry_objects_list))
+        #loop.widget = menu(title_string, main_menu_choices(entry_objects_list))
 
     entry_objects_list = list()
     for entry_object in entry_objects_dict.values():
