@@ -3,7 +3,7 @@
 
 Download the latest featured modules from modarchive.org.
 
-Makes use of the RSS feed for getting info about newly featured modules.
+Makes use of the RSS feed for getting info about newly featured modules.  
 
 Up to 40 of the most recently featured modules can be downloaded, as that is the length of the RSS feed.
 
@@ -43,7 +43,7 @@ To circumvent this default behavior and manually specify how many modules to dow
 * -h: Display help
 * -c [x], --count=[x]: Download the X most recently featured modules. Must be an integer less than or equal to 40. If the -a option is used, the count must be less than or equal to 100.
 * -i, --interactive: Enter an interactive TUI mode where you can browse through modules, select an individual module, and choose to play it (stream) or download it.
-* -a, --all-recent: Download from all of the most recently archived modules, including modules that were not featured.
+* -a, --all-recent: Download from all of the most recently archived modules, including modules that were not featured. (This list may take slightly longer to update than the recently featured modules list, as the RSS feed it is read from does not update immediately.)
 * -o [path/to/output], --output=[[path/to/output]: Specify a custom output directory. If it does not exist already, it will be made on the fly.
 
 ## systemd service

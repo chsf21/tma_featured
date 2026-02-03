@@ -5,6 +5,7 @@ import re
 import feedparser
 import wget
 import getopt, sys
+import webbrowser
 # Try to import optional libraries needed for interactive mode.
 no_tui = False
 try:
@@ -23,9 +24,9 @@ all_mode_folder = "~/Music/all_recent_modules"
 # (If a, --all-recent is used, a different feed will be used automatically. There is no need to configure anything in order for -a to work.)
 # It may be changed to parse from a downloaded copy of TMA's RSS feed (e.g. for quicker load times when developing this script.)
 # If this is done, change feed_from_file to True
-feed = "https://modarchive.org/rss.php?request=featured"
-feed_from_file = False
-#feed = "~/Downloads/rss.php"
+#feed = "https://modarchive.org/rss.php?request=featured"
+feed_from_file = True
+feed = "~/Downloads/rss.php"
 
 ########################## Setup ##############################
 
@@ -87,6 +88,13 @@ if feed_from_file:
 
 parsed = feedparser.parse(feed)
 
+# If no count is specified, interactive mode should display as many modules as possible.
+if not count_option:
+    if interactive_mode and all_mode:
+        count = 100
+    elif interactive_mode:
+        count = 40
+
 ########################## Classes and methods ##############################
 
 class FeaturedModule:
@@ -97,14 +105,22 @@ class FeaturedModule:
         self.filename = re.search('Filename:</b>(.*?)<br', feed_entry.summary)[1].strip()
         # The month as an integer from 1 to 12
         self.month = feed_entry.published_parsed[1]
-        self.download = feed_entry.link
         self.page = feed_entry.link2
+        self.download = feed_entry.link
+        self.mod_id = re.search('moduleid=([0-9]*?)#', self.download)[1].strip()
+        self.stream_page = f"modarchive.org/index.php?request=view_player&query={self.mod_id}"
+        if self.filename in owned_modules:
+            self.owned = True
+        else:
+            self.owned = False
 
-def create_entry_objects(parsed_entries, count):
+def create_entry_objects(parsed_entries, count, owned_modules):
     """Turn parsed feed entries into objects, then insert them into a dictionary. Dictionary keys are sequential integers, starting with 1"""
     entry_objects_dict = dict()
     for x in range(count):
-        entry_objects_dict[str(x + 1)] = FeaturedModule(parsed.entries[x])
+        key = str(x + 1)
+        entry_objects_dict[key] = FeaturedModule(parsed.entries[x])
+        entry_objects_dict[key].number = key
     return entry_objects_dict
 
 def download_module(entry_object, output_folder, owned_modules):
@@ -132,7 +148,7 @@ def find_recent_module(entry_objects_dict, output_folder, owned_modules):
 
 ########################## Main ##############################
 
-entry_objects_dict = create_entry_objects(parsed.entries, count)
+entry_objects_dict = create_entry_objects(parsed.entries, count, owned_modules)
 
 if not interactive_mode:
     # Only use find_recent_module if the user did not specify a count
@@ -149,3 +165,85 @@ if not interactive_mode:
 
 ########################## Urwid TUI ##############################
 
+if not no_tui and interactive_mode:
+
+    tui_top = ""
+    
+    palette = [
+    ("featured", "white", "dark blue"),
+    ("number", "black", "white"),
+    ("downloaded", "dark green", "black"),
+    ]
+
+    def menu(title, choices):
+        """Creates a simple menu. Takes a title and a list of choices (buttons). Returns an urwid ListBox containing SimpleFocusListWalker."""
+        body = [urwid.Text(title), urwid.Divider(), *choices]
+        return urwid.ListBox(urwid.SimpleFocusListWalker(body))
+
+    def main_menu_choices(choices): 
+        """Takes a list of FeaturedModule objects. Returns them as a list of urwid buttons. When these buttons are clicked they open a submenu."""
+        formatted_choices = list()
+        for choice in choices:
+            if choice.owned:
+                downloaded = ("downloaded", " (Downloaded) ")
+            else:
+                downloaded = ""
+
+            number = ("number", choice.number + ":")
+
+            if ">> Featured <<" in choice.title:
+                button_label = [number,
+                                " ", 
+                                ("featured", ">> Featured <<"), 
+                                choice.title.removeprefix(">> Featured <<"), downloaded]
+            else:
+                button_label = [number, " ", choice.title, downloaded]
+
+            button = urwid.Button(button_label)
+            urwid.connect_signal(button, "click", submenu, user_args=[choice, downloaded])
+            formatted_choices.append(urwid.AttrMap(button, None, focus_map="reversed"))
+        return formatted_choices
+
+    def submenu(choice, downloaded, button):
+        """Creates a submenu to be displayed when a module is selected from the main menu. Returns an urwid ListBox containing SimpleFocusListWalker."""
+        global tui_top
+        global currently_displaying
+        choices = list()
+        dl_button = urwid.Button("Download")
+        urwid.connect_signal(dl_button, "click", dl_mod, choice)
+        choices.append(urwid.AttrMap(dl_button, None, focus_map="reversed"))
+        if downloaded != "":
+            choices.append(downloaded)
+        stream_button = urwid.Button("Play in browser")
+        urwid.connect_signal(stream_button, "click", stream_mod, choice)
+        choices.append(urwid.AttrMap(stream_button, None, focus_map="reversed"))
+        submenu_window = menu(choice.filename, choices)
+        loop.widget = urwid.Overlay(
+                urwid.LineBox(submenu_window),
+                tui_top,
+                align=urwid.CENTER,
+                width=(urwid.RELATIVE, 80),
+                valign=urwid.MIDDLE,
+                height=(urwid.RELATIVE, 80))
+
+    def stream_mod(button, choice):
+        """Stream the selected module using the chiptune2.js player on modarchive.org. Opens a new browser window"""
+        webbrowser.open(choice.stream_page, new=1)
+
+    def dl_mod(button, choice):
+        """Download the selected module using download_module"""
+        download_module(choice, output_folder, owned_modules)
+    
+    choices = list()
+    for entry_object in entry_objects_dict.values():
+        choices.append(entry_object)
+
+    if all_mode:
+        title_string = "Recently Uploaded Modules (all)"
+    else:
+        title_string = "Recently Featured Modules"
+
+    tui_top = menu(title_string, main_menu_choices(choices))
+
+    loop = urwid.MainLoop(tui_top, palette)
+    loop.run()
