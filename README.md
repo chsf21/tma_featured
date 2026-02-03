@@ -3,9 +3,9 @@
 
 Keep up with and download the latest modules from modarchive.org.
 
-Optional systemd service for automatic downloads.
+Optional [systemd service](#systemd-service) for automatic downloads.
 
-Optional interactive mode for browsing in a TUI.
+Optional [interactive mode](#command-line-options) for browsing in a TUI.
 
 Makes use of RSS feeds for getting info about newly featured or newly archived modules.
 
