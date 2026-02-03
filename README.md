@@ -38,7 +38,11 @@ In order to avoid any unexpected behavior (e.g. an old module having the same fi
 
 To circumvent this default behavior and manually specify how many modules to download, use the [command line option -c](#command-line-options)
 
+**Note:** The script must be run from a directory where you have write permissions, as temp files will need to be created in the present working directory (this is the default behavior of the wget module)
+
 ## Command line options
+
+All command line options, besides for -h, may be combined and run at once
 
 * -h: Display help
 * -c [x], --count=[x]: Download the X most recently featured modules. Must be an integer less than or equal to 40. If the -a option is used, the count must be less than or equal to 100.

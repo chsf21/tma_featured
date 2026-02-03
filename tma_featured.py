@@ -19,14 +19,14 @@ except:
 # output_folder cannot use the tilde character ~ if the systemd service will be used
 output_folder = "~/Music/featured_modules"
 all_mode_folder = "~/Music/all_recent_modules"
-# The feed variable should generally be left as is. 
+
+### The feed variable should generally be left as is. 
 # It represents the feed for *recently featured* modules. 
 # (If a, --all-recent is used, a different feed will be used automatically. There is no need to configure anything in order for -a to work.)
 # It may be changed to parse from a downloaded copy of TMA's RSS feed (e.g. for quicker load times when developing this script.)
 # If this is done, change feed_from_file to True
-#feed = "https://modarchive.org/rss.php?request=featured"
-feed_from_file = True
-feed = "~/Downloads/rss.php"
+feed = "https://modarchive.org/rss.php?request=featured"
+feed_from_file = False
 
 ########################## Setup ##############################
 
@@ -46,17 +46,20 @@ for option, value in options_list:
         print("Will search the root level of the output directory for a module that was recently featured")
         print("If found, all modules that were featured more recently than the found module will be downloaded")
         print("If not found, the 40 most recently featured modules will be downloaded")
-        print("OPTIONS:")
+        print("OPTIONS (all options may be combined besides for -h):")
         print("-a, --all-recent\tDownload from the archive of all recently archived modules including modules that were not featured")
         print("-c [x], --count [x]\tDownload the last [x] modules that were featured. Must be less than or equal to 40.")
         print("                   \tIf -a is used with this option, must be less than or equal to 100")
         print("-i, --interactive\tInteractive TUI mode. Browse the recently featured modules and choose which to download or stream")
+        print("                 \tWhen combined with the -a option, all recently archived modules will be displayed")
         print("-o, --output\tSpecify an output directory. (Without this, the output directory specified at the top of tma_featured.py is used)")
+        print("-h, --help\tDisplay this help message")
         sys.exit(0)
     if option in ("-a", "--all-recent"):
         all_mode = True
         count = 15
-        feed = "https://modarchive.org/rss.php?request=uploads"
+        #feed = "https://modarchive.org/rss.php?request=uploads"
+        feed = os.path.expanduser("~/Downloads/rss-1.php")
         if not custom_output:
             output_folder = all_mode_folder
     if option in ("-o", "--output"):
@@ -130,6 +133,8 @@ def download_module(entry_object, output_folder, owned_modules):
     else:
         print(f"\nDownloading {entry_object.filename}")
         wget.download(entry_object.download, output_folder)
+        entry_object.owned = True
+        owned_modules.append(entry_object)
 
 def find_recent_module(entry_objects_dict, output_folder, owned_modules):
     """Search the root level of the output directory for a module that was recently featured. If it is found, return the dictionary key that corresponds with that module"""
@@ -166,8 +171,6 @@ if not interactive_mode:
 ########################## Urwid TUI ##############################
 
 if not no_tui and interactive_mode:
-
-    tui_top = ""
     
     palette = [
     ("featured", "white", "dark blue"),
@@ -175,15 +178,21 @@ if not no_tui and interactive_mode:
     ("downloaded", "dark green", "black"),
     ]
 
+    def handle_input(key):
+        if key in {"q", "Q"}:
+            raise urwid.ExitMainLoop()
+        elif key == "esc":
+            loop.widget = main_menu
+
     def menu(title, choices):
         """Creates a simple menu. Takes a title and a list of choices (buttons). Returns an urwid ListBox containing SimpleFocusListWalker."""
         body = [urwid.Text(title), urwid.Divider(), *choices]
         return urwid.ListBox(urwid.SimpleFocusListWalker(body))
 
-    def main_menu_choices(choices): 
+    def main_menu_choices(entry_objects_list): 
         """Takes a list of FeaturedModule objects. Returns them as a list of urwid buttons. When these buttons are clicked they open a submenu."""
         formatted_choices = list()
-        for choice in choices:
+        for choice in entry_objects_list:
             if choice.owned:
                 downloaded = ("downloaded", " (Downloaded) ")
             else:
@@ -206,25 +215,24 @@ if not no_tui and interactive_mode:
 
     def submenu(choice, downloaded, button):
         """Creates a submenu to be displayed when a module is selected from the main menu. Returns an urwid ListBox containing SimpleFocusListWalker."""
-        global tui_top
-        global currently_displaying
+        global main_menu
         choices = list()
         dl_button = urwid.Button("Download")
         urwid.connect_signal(dl_button, "click", dl_mod, choice)
         choices.append(urwid.AttrMap(dl_button, None, focus_map="reversed"))
         if downloaded != "":
-            choices.append(downloaded)
+            choices.append(urwid.Text(downloaded))
         stream_button = urwid.Button("Play in browser")
         urwid.connect_signal(stream_button, "click", stream_mod, choice)
         choices.append(urwid.AttrMap(stream_button, None, focus_map="reversed"))
         submenu_window = menu(choice.filename, choices)
         loop.widget = urwid.Overlay(
                 urwid.LineBox(submenu_window),
-                tui_top,
+                main_menu,
                 align=urwid.CENTER,
-                width=(urwid.RELATIVE, 80),
+                width=(urwid.RELATIVE, 60),
                 valign=urwid.MIDDLE,
-                height=(urwid.RELATIVE, 80))
+                height=(urwid.RELATIVE, 60))
 
     def stream_mod(button, choice):
         """Stream the selected module using the chiptune2.js player on modarchive.org. Opens a new browser window"""
@@ -233,17 +241,18 @@ if not no_tui and interactive_mode:
     def dl_mod(button, choice):
         """Download the selected module using download_module"""
         download_module(choice, output_folder, owned_modules)
-    
-    choices = list()
+        loop.widget = menu(title_string, main_menu_choices(entry_objects_list))
+
+    entry_objects_list = list()
     for entry_object in entry_objects_dict.values():
-        choices.append(entry_object)
+        entry_objects_list.append(entry_object)
 
     if all_mode:
         title_string = "Recently Uploaded Modules (all)"
     else:
         title_string = "Recently Featured Modules"
 
-    tui_top = menu(title_string, main_menu_choices(choices))
+    main_menu = menu(title_string, main_menu_choices(entry_objects_list))
 
-    loop = urwid.MainLoop(tui_top, palette)
+    loop = urwid.MainLoop(main_menu, palette, unhandled_input=handle_input)
     loop.run()
