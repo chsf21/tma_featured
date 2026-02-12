@@ -220,11 +220,18 @@ if not no_tui and interactive_mode:
         dl_button = urwid.Button("Download")
         urwid.connect_signal(dl_button, "click", dl_mod, choice)
         choices.append(urwid.AttrMap(dl_button, None, focus_map="reversed"))
+
         if downloaded != "":
             choices.append(urwid.Text(downloaded))
+
         stream_button = urwid.Button("Play in browser")
         urwid.connect_signal(stream_button, "click", stream_mod, choice)
         choices.append(urwid.AttrMap(stream_button, None, focus_map="reversed"))
+
+        info_button = urwid.Button("View online page")
+        urwid.connect_signal(info_button, "click", view_mod_page, choice)
+        choices.append(urwid.AttrMap(info_button, None, focus_map="reversed"))
+
         choices.extend([urwid.Divider(), urwid.Text("ESC to go back")])
         submenu_window = menu(choice.filename, choices)
         loop.widget = urwid.Overlay(
@@ -238,6 +245,10 @@ if not no_tui and interactive_mode:
     def stream_mod(button, choice):
         """Stream the selected module using the chiptune2.js player on modarchive.org. Opens a new browser window"""
         webbrowser.open(choice.stream_page, new=1)
+
+    def view_mod_page(button, choice):
+        """Open the online info page for the select module on modarchive.org. Opens a new browser window"""
+        webbrowser.open(choice.page, new=1)
 
     def dl_mod(button, choice):
         """Download the selected module using download_module"""
