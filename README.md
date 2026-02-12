@@ -27,6 +27,8 @@ There is also a variable recent_mode_folder. This is where modules will be downl
 
 Note: To quickly specify a custom output directory for the current run of the script, use the [command line option -o](#command-line-options)
 
+**Tip**: After you download some recent modules, in your music player navigate to the directory where they are saved to, sort by Date Modified, and add them all to a playlist for easy listening.
+
 Remember: If you choose to copy tma_featured.py to /usr/local/bin, then any changes made to the output_folder or all_mode_folder variables must be done on that copy. If you would prefer to edit some copy in your home directory while also having the executable in /usr/local/bin, use symlinks:
 
     sudo ln -s /**absolute**/path/to/tma_featured.py /usr/local/bin
