@@ -59,7 +59,7 @@ for option, value in options_list:
         all_mode = True
         count = 15
         #feed = "https://modarchive.org/rss.php?request=uploads"
-        feed = os.path.expanduser("~/Downloads/rss-1.php")
+        feed = os.path.expanduser("https://modarchive.org/rss.php?request=uploads")
         if not custom_output:
             output_folder = all_mode_folder
     if option in ("-o", "--output"):
